@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum TxStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Organisation {
+  id          Int      @id @default(autoincrement())
+  walletSetId String   @unique
+  name        String   @unique
+  country     String
+  createdAt   DateTime @default(now())
+}
+
+model Wallet {
+  id             String   @id @default(uuid())
+  safeAddress    String   @unique
+  chainType      String
+  organisationId Int
+  createdAt      DateTime @default(now())
+}
+
+model Transaction {
+  id             String   @id @default(uuid())
+  data           Json
+  hash           String   @unique
+  status         TxStatus @default(PENDING)
+  chainId        String
+  organisationId Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TokenBalance {
+  id        String   @id @default(uuid())
+  token     String // Token address or identifier
+  amount    String
+  chainId   String
+  walletId  String
+  updatedAt DateTime @updatedAt
+}
+
+model ChainConfig {
+  id       String  @id @default(uuid())
+  chainId  String  @unique
+  name     String
+  rpcUrl   String
+  type     String // EVM, SOLANA, etc.
+  enabled  Boolean @default(true)
+  metadata Json?
+}
